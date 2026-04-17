@@ -1,0 +1,9 @@
+.vscode
+
+# C++ build artifacts
+build/
+*.o
+*.exe
+*.dSYM/
+*.dylib
+*.so

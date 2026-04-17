@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # C++ 编译快速脚本
-# 用法: ./build.sh [命令] [目标]
-# 例如: ./build.sh run job_example
+# 用法: ./build.sh [命令] [目标] [编译器]
+# 例如: ./build.sh run job_example clang++
+# 支持编译器: g++ (默认), clang++
 
 set -e
 
@@ -10,6 +11,13 @@ BUILD_DIR="build"
 TARGET="${2:-day01}"
 SRC_FILE="src/${TARGET}.cpp"
 BIN_NAME="${TARGET}"
+COMPILER="${3:-g++}"
+
+# 检查编译器
+if ! command -v "$COMPILER" &> /dev/null; then
+    echo -e "${RED}错误: 编译器 $COMPILER 未找到${NC}"
+    exit 1
+fi
 
 # 颜色输出
 GREEN='\033[0;32m'
@@ -19,7 +27,7 @@ NC='\033[0m' # No Color
 
 # 显示用法
 usage() {
-    echo "用法: $0 [命令] [目标]"
+    echo "用法: $0 [命令] [目标] [编译器]"
     echo ""
     echo "命令:"
     echo "  debug        - 调试模式编译 (带符号和-O0)"
@@ -32,8 +40,13 @@ usage() {
     echo "  day01        - 默认程序"
     echo "  job_example  - 求职示例程序"
     echo ""
+    echo "编译器:"
+    echo "  g++          - 默认GCC编译器"
+    echo "  clang++      - Clang编译器 (如果安装)"
+    echo ""
     echo "示例:"
     echo "  $0 run job_example"
+    echo "  $0 run day01 clang++"
 }
 
 # 检查源文件
@@ -52,19 +65,19 @@ case "${1:-release}" in
     debug)
         echo -e "${BLUE}[编译] 调试模式: $SRC_FILE${NC}"
         check_source
-        clang++ -std=c++17 -Wall -Wextra -Weffc++ -g -O0 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
+        $COMPILER -std=c++17 -Wall -Wextra -Weffc++ -g -O0 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
         echo -e "${GREEN}✓ 编译完成: $BUILD_DIR/$BIN_NAME${NC}"
         ;;
     release)
         echo -e "${BLUE}[编译] 发布模式: $SRC_FILE${NC}"
         check_source
-        clang++ -std=c++17 -Wall -Wextra -Weffc++ -O3 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
+        $COMPILER -std=c++17 -Wall -Wextra -Weffc++ -O3 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
         echo -e "${GREEN}✓ 编译完成: $BUILD_DIR/$BIN_NAME${NC}"
         ;;
     run)
         echo -e "${BLUE}[编译] 发布模式并运行${NC}"
         check_source
-        clang++ -std=c++17 -Wall -Wextra -Weffc++ -O3 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
+        $COMPILER -std=c++17 -Wall -Wextra -Weffc++ -O3 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
         echo -e "${GREEN}✓ 编译完成${NC}"
         echo -e "${BLUE}[运行]${NC}"
         ./"$BUILD_DIR/$BIN_NAME"
@@ -72,7 +85,7 @@ case "${1:-release}" in
     debug-run)
         echo -e "${BLUE}[编译] 调试模式并运行${NC}"
         check_source
-        clang++ -std=c++17 -Wall -Wextra -Weffc++ -g -O0 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
+        $COMPILER -std=c++17 -Wall -Wextra -Weffc++ -g -O0 -Iinclude "$SRC_FILE" -o "$BUILD_DIR/$BIN_NAME"
         echo -e "${GREEN}✓ 编译完成${NC}"
         echo -e "${BLUE}[运行]${NC}"
         ./"$BUILD_DIR/$BIN_NAME"
